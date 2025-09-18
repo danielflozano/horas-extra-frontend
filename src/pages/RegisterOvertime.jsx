@@ -7,7 +7,7 @@ import {   Dialog,
   DialogTitle,
   DialogDescription,
  } from '@/components/ui/dialog';
-import { OverTimeRecordTable } from '@/components/horasExtra/OverTimeRecordTable';
+import { OverTimeRecordTable } from '@/components/overtime/OverTimeRecordTable';
 
 export const RegisterOvertime = () => {
   const [funcionarios, setFuncionarios] = useState([]);
@@ -26,7 +26,7 @@ export const RegisterOvertime = () => {
   useEffect(() => {
     const getFuncionarios = async () => {
       try {
-        const res = await funcionariosService.listar();
+        const res = await funcionariosService.listarFuncionarios();
         setFuncionarios(res.data);
       } catch (error) {
         console.error('Error cargando funcionarios', error);
@@ -39,8 +39,10 @@ export const RegisterOvertime = () => {
   const onSubmit = async (data) => {
     try {
       const response = await horasExtraService.crearExtras(data);      
-      
+      console.log(response.data);      
       setRegistroHorasExtra(response.data);
+      console.log(registroHorasExtra);
+      
       reset();
       setIsError(false);
       setModalMessage('Horas extra registradas con éxito')
@@ -54,11 +56,9 @@ export const RegisterOvertime = () => {
     }
   };
 
-  console.log(registroHorasExtra);
-
   return (
     <div className="flex flex-col items-center">
-      <h2 className="text-epaColor text-center text-3xl font-extrabold pb-10">
+      <h2 className="text-epaColor text-center text-4xl font-extrabold pt-14 pb-4">
         Registro de Horas Extra
       </h2>
       <form
@@ -209,7 +209,7 @@ export const RegisterOvertime = () => {
 
         <button
           type="submit"
-          className="bg-epaColor text-white w-1/2 rounded-2xl p-1 mx-auto block"
+          className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
         >
           Registrar
         </button>
@@ -220,12 +220,12 @@ export const RegisterOvertime = () => {
       <Dialog open={openModal} onOpenChange={setOpenModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isError ? 'Error' : 'Registro Exitoso'}</DialogTitle>
-            <DialogDescription>{modalMessage}</DialogDescription>
+            <DialogTitle className={'text-epaColor text-3xl text-center font-bold mb-2'}>{isError ? 'Error' : 'Registro Exitoso'}</DialogTitle>
+            <DialogDescription className={'text-xl text-center font-semibold mb-2'}>{modalMessage}</DialogDescription>
           </DialogHeader>
           <button
             onClick={() => setOpenModal(false)}
-            className="bg-epaColor text-white w-1/2 rounded-2xl p-1 mx-auto block"
+            className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
           >Cerrar</button>
         </DialogContent>
       </Dialog>

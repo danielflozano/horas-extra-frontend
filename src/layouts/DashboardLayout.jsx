@@ -1,14 +1,13 @@
 
 import { Link, Outlet } from 'react-router-dom';
 import logo from '../assets/logoepa.png';
-
+import { useAuth } from '@/context/AuthContext';
 
 const currentYear = new Date().getFullYear();
 
 export const DashboardLayout = () => {
 
-
-
+  const { logout } = useAuth();
 
   return (
     <div className="flex h-screen">
@@ -23,14 +22,21 @@ export const DashboardLayout = () => {
             <Link to={ '/dashboard' }>Inicio</Link>
           </div>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/register-overtime' }>Registrar Horas Extra</Link>
+            <Link to={ '/dashboard/register-overtime' }>Horas Extra</Link>
+          </div>
+          <div className='text-epaColor font-medium'>
+            <Link to={ '/dashboard/register' }>Funcionario</Link>
           </div>
           <div className='text-epaColor font-medium'>
             <Link to={ '/dashboard/generate-report' }>Reportes</Link>
           </div>
-          <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/register' }>Registrar usuario</Link>
-          </div>
+          <button
+            type="button"
+            onClick={logout}
+            className="bg-red-700 text-white min-w-9/10 rounded-2xl p-2 mx-auto block hover:bg-red-800 transform hover:scale-105"
+          >
+            Cerrar sesión
+          </button>
         </nav>
       </div>
 
@@ -51,8 +57,8 @@ export const DashboardLayout = () => {
             Plataforma de Horas Extra Aseo - EPA
           </div>
           <div>
-            Contacto de Soporte.
-            <p>Tel: (606) 741 17 80 Ext. #### - ####</p>
+            Contacto de Soporte: <a href="mailto:redes.tic@epa.gov.co">redes.tic&#64;epa.gov.co</a>
+            <p>Tel: (606) 741 17 80 Ext. 1512 - 1513</p>
           </div>
         </footer>
       </div>

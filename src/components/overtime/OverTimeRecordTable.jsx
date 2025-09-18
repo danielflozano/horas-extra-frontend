@@ -17,13 +17,13 @@ export const OverTimeRecordTable = ({ data }) => {
           <tr>
             <td className="px-4 py-2 font-semibold">Fecha Inicio Trabajo</td>
             <td className="px-4 py-2">
-              {new Date(data.fecha_inicio_trabajo).toLocaleDateString()}
+              {new Date(data.fecha_inicio_trabajo).toISOString().split("T")[0]}
             </td>
           </tr>
           <tr>
             <td className="px-4 py-2 font-semibold">Fecha Fin Trabajo</td>
             <td className="px-4 py-2">
-              {new Date(data.fecha_fin_trabajo).toLocaleDateString()}
+              {new Date(data.fecha_inicio_trabajo).toISOString().split("T")[0]}
             </td>
           </tr>
           <tr>
@@ -37,13 +37,13 @@ export const OverTimeRecordTable = ({ data }) => {
           <tr>
             <td className="px-4 py-2 font-semibold">Fecha Inicio Descanso</td>
             <td className="px-4 py-2">
-              {new Date(data.fecha_inicio_descanso).toLocaleDateString()}
+              {new Date(data.fecha_inicio_trabajo).toISOString().split("T")[0]}
             </td>
           </tr>
           <tr>
             <td className="px-4 py-2 font-semibold">Fecha Fin Descanso</td>
             <td className="px-4 py-2">
-              {new Date(data.fecha_fin_descanso).toLocaleDateString()}
+              {new Date(data.fecha_inicio_trabajo).toISOString().split("T")[0]}
             </td>
           </tr>
           <tr>

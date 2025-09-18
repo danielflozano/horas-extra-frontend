@@ -1,6 +1,10 @@
+export const OverTimeTable = ({ registros }) => {
 
-export const OverTimeTable = () => {
-  return (
+  return registros.length === 0 ? (
+    <div className="text-center text-xl text-gray-500 font-semibold py-8">
+            No se encontraron reportes
+    </div>
+  ) : (
     <table className="table-auto border-collapse border border-gray-400 w-full text-center">
       <thead>
         <tr className="bg-gray-200">
@@ -16,23 +20,23 @@ export const OverTimeTable = () => {
         </tr>
       </thead>
       <tbody>
-        {/* {registros.map((item) => (
-          <tr key={item._id}>
+        {registros.map((item, idx) => (
+          <tr key={idx}>
             <td className="border border-gray-400 px-2">
-              {item.FuncionarioAsignado?.nombre_completo}
+              {item.nombre_Funcionario}
             </td>
-            <td className="border border-gray-400 px-2">{item.HEDO}</td>
-            <td className="border border-gray-400 px-2">{item.HENO}</td>
-            <td className="border border-gray-400 px-2">{item.HEDF}</td>
-            <td className="border border-gray-400 px-2">{item.HENF}</td>
-            <td className="border border-gray-400 px-2">{item.HDF}</td>
-            <td className="border border-gray-400 px-2">{item.HNF}</td>
-            <td className="border border-gray-400 px-2">{item.RNO}</td>
+            <td className="border border-gray-400 px-2">{item.HEDO_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.HENO_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.HEDF_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.HENF_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.HDF_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.HNF_HORA}</td>
+            <td className="border border-gray-400 px-2">{item.RNO_HORA}</td>
             <td className="border border-gray-400 px-2 font-bold">
-              {item.totalHoras}
+              {item.totalExtras_DEC}
             </td>
           </tr>
-        ))} */}
+        ))}
       </tbody>
     </table>
   )
