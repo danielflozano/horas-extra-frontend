@@ -4,7 +4,6 @@ export const reportesService = {
   crearReporte: async (reporteData) => {
     try {
       const res = await axiosInstance.post('/reporte/crear', reporteData);
-      console.log('Ok creando reporte');
       return res.data;
     } catch (error) {
       const errorMessage =

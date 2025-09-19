@@ -22,7 +22,7 @@ export const DashboardLayout = () => {
             <Link to={ '/dashboard' }>Inicio</Link>
           </div>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/register-overtime' }>Horas Extra</Link>
+            <Link to={ '/dashboard/overtime' }>Horas Extra</Link>
           </div>
           <div className='text-epaColor font-medium'>
             <Link to={ '/dashboard/register' }>Funcionario</Link>

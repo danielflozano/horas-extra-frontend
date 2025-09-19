@@ -85,12 +85,11 @@ export const TableFuncionarios = ({ onBack }) => {
         </button>
       </div>
 
-      {/* Tabla */}
-      <div className="max-h-[500px] overflow-y-auto bg-white shadow-md rounded-lg w-[400px] p-6 lg:w-[800px] mx-auto">
+      <div className="bg-white shadow-md rounded-lg w-[400px] p-6 lg:w-[1200px] mx-auto">
         <table className="w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-epaColor h-8 text-left text-sm font-semibold text-white uppercase">
             <tr>
-              <th>ID</th>
+              <th className="py-4">Identificación</th>
               <th>Nombre</th>
               <th>Cargo</th>
               <th>Tipo de Operario</th>
@@ -102,9 +101,9 @@ export const TableFuncionarios = ({ onBack }) => {
             {funcionarios.map((func) => (
               <tr
                 key={func._id}
-                className="hover:bg-gray-50 transition-colors text-gray-900"
+                className="hover:bg-gray-50 transition-colors"
               >
-                <td className="font-medium">{func.identificacion}</td>
+                <td className="py-2">{func.identificacion}</td>
                 <td>{func.nombre_completo}</td>
                 <td>{func.Cargo?.name ?? "Sin cargo asignado"}</td>
                 <td>{func.tipoOperario}</td>
@@ -132,7 +131,7 @@ export const TableFuncionarios = ({ onBack }) => {
 
       {/* Modal */}
       {mostrarModal && funcionarioSeleccionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+        <div className="fixed inset-0 bg-epaColor/50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
             <h3 className="text-lg font-bold mb-4">Editar Funcionario</h3>
 

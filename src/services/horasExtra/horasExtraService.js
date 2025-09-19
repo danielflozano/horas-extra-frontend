@@ -1,14 +1,16 @@
 import { axiosInstance } from "../../api/axiosInstance"
 
 export const horasExtraService = {
+
+  // es la mejor practica en proyectos grandes (throw new error) en proyectos
+  // pequeños se podria devolver siempre un objeto {ok: true o false, msg:''}
   crearExtras: async (extrasData) => {
     try {
       const res = await axiosInstance.post("/extras/crear", extrasData);
       return res.data;
     } catch (error) {
-      console.error("Error creando horas extra:", error);
-      // Puedes devolver el error para que el componente lo maneje
-      throw error.response?.data || error.message;
+      const errorMessage = error.response?.data?.message || 'Error creando horas extra ❌'
+      throw new Error(errorMessage);
     }
   },
 
@@ -44,7 +46,7 @@ export const horasExtraService = {
 
   listarExtrasPorFuncionario: async(identificacion) => {
     try {
-      const res = await axiosInstance.get(`/extras/funcionario?identificacion=${identificacion}`);
+      const res = await axiosInstance.get(`/extras/funcionario/${identificacion}`);
       return res.data;
     } catch (error) {
       console.error(`Error obteniendo horas extra del funcionario con identificacion ${identificacion}`, error);
@@ -62,5 +64,5 @@ export const horasExtraService = {
     }
   },
 
-  // exportarExcel  
+  // exportarExcel
 };

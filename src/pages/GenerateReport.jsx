@@ -19,8 +19,10 @@ export const GenerateReport = () => {
 
       if (action === 'generar') {
         const response = await reportesService.crearReporte(data);
+        console.log('Log de la data ', data);
+        
         setReporte(response.data);
-        console.log(reporte);
+        console.log('Log del reporte ', reporte);
         
         setMostrarTabla(true);
       }
