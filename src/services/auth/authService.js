@@ -4,6 +4,7 @@ export const authService = {
   login: async (userData) => {
     try {
       const response = await authAxios.post("/auth/login", userData);
+      console.log(response.data.message);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.msg || "Error desconocido al iniciar sesión";

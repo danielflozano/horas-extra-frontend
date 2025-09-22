@@ -26,11 +26,7 @@ export const Login = () => {
       console.error(error);
       setApiError(error.message);
     }    
-  };
-
-  console.log(apiError);
-  
-  
+  };  
 
   return (
     <div className="bg-epaColor flex justify-center items-center h-screen">

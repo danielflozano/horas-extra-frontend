@@ -14,8 +14,7 @@ export const GetOvertime = ({ onBack }) => {
   const getHorasExtra = async() => {
     try {
       const response = await horasExtraService.listarExtras();
-      setHorasExtra(response.data)
-      console.log(response.data);      
+      setHorasExtra(response.data)    
     } catch (error) {
       console.error('Error cargando horas extra', error);      
     }    
@@ -34,10 +33,8 @@ export const GetOvertime = ({ onBack }) => {
   const eliminarHorasExtra = async(id) => {
     try {
       const response = await horasExtraService.eliminarExtras(id);
-      console.log(response.data);
       setHorasExtra(horasExtra.filter(r => r._id !== id));
-      cerrarModal();
-      
+      cerrarModal();      
     } catch (error) {
       console.error('Error eliminando horas extra', extra);
     }

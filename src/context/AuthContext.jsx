@@ -5,12 +5,23 @@ import { axiosInstance, setupInterceptors } from "@/api/axiosInstance";
 const AuthContext = createContext({
   isAuthenticated: false,
   user: null,
-  token: null,        // 👈 añadimos el token
+  token: null,
   isLoading: true,
   login: () => {},
   logout: () => {},
-  setToken: () => {}, // 👈 añadimos setter del token
+  setToken: () => {},
 });
+
+// Función para revisar si el accessToken está expirado
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return Date.now() >= payload.exp * 1000; // convertir exp a ms
+  } catch (err) {
+    return true; // si no se puede decodificar, consideramos expirado
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("accessToken"));
@@ -18,22 +29,50 @@ export const AuthProvider = ({ children }) => {
     const userData = localStorage.getItem("userData");
     return userData ? JSON.parse(userData) : null;
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!(token && user);
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!(token && user));
   const [isLoading, setIsLoading] = useState(true);
 
+  // Función que actualiza token en estado, axios y localStorage
+  const setTokenAndAxios = (newToken) => {
+    setToken(newToken);
+    localStorage.setItem("accessToken", newToken);
+    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+  };
+
+  // Configuración inicial del contexto y axios
   useEffect(() => {
-    setupInterceptors(setToken, logout); // 👈 conectamos interceptores al contexto
-    setIsLoading(false);
+    // Configuramos axios con el token inicial de localStorage
+    if (token) {
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+
+    // Conectamos interceptores con la función que actualiza el token
+    setupInterceptors(setTokenAndAxios, logout);
+
+    // Refresh preventivo solo si el token ha expirado
+    const initAuth = async () => {
+      if (!token) return setIsLoading(false);
+
+      if (isTokenExpired(token)) {
+        try {
+          const data = await authService.renew();
+          setTokenAndAxios(data.token);
+        } catch (err) {
+          logout();
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    initAuth();
   }, []);
 
-  const login = (token, userData) => {
+  const login = (accessToken, userData) => {
     try {
-      localStorage.setItem("accessToken", token);
+      localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("userData", JSON.stringify(userData));
-      setToken(token);
-      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setTokenAndAxios(accessToken);
       setUser(userData);
       setIsAuthenticated(true);
     } catch (error) {
@@ -55,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
+      axiosInstance.defaults.headers.common["Authorization"] = "";
     }
   };
 
@@ -66,16 +106,12 @@ export const AuthProvider = ({ children }) => {
       isLoading,
       login,
       logout,
-      setToken, // 👈 lo exponemos para que axios pueda actualizar el token
+      setToken: setTokenAndAxios,
     }),
     [isAuthenticated, user, token, isLoading]
   );
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);
