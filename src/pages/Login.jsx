@@ -19,18 +19,18 @@ export const Login = () => {
   const onSubmit = async (data) => {
     setApiError('');
     try {
-      const response = await authService.login(data);
-      if (response.ok) {
-        login(response.accessToken, response.user);
-        navigate('/dashboard');
-      } else {
-        setApiError(response.message);
-      }
+      const response = await authService.login(data);   
+      login(response.token, response.user);
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
-      setApiError('Ocurrio un error inesperado. Intentalo de nuevo');
-    }
+      setApiError(error.message);
+    }    
   };
+
+  console.log(apiError);
+  
+  
 
   return (
     <div className="bg-epaColor flex justify-center items-center h-screen">

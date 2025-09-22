@@ -1,82 +1,81 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authService } from "@/services";
+import { axiosInstance, setupInterceptors } from "@/api/axiosInstance";
 
 const AuthContext = createContext({
   isAuthenticated: false,
   user: null,
+  token: null,        // 👈 añadimos el token
   isLoading: true,
   login: () => {},
   logout: () => {},
+  setToken: () => {}, // 👈 añadimos setter del token
 });
 
 export const AuthProvider = ({ children }) => {
-  const [ isAuthenticated, setIsAuthenticated ] = useState(() => {
-    const token = localStorage.getItem('accessToken');
-    const userData = localStorage.getItem('userData');
-    return !!(token && userData);
-  });
-  const [ user,setUser ] = useState(() => {
-    const userData = localStorage.getItem('userData');
+  const [token, setToken] = useState(() => localStorage.getItem("accessToken"));
+  const [user, setUser] = useState(() => {
+    const userData = localStorage.getItem("userData");
     return userData ? JSON.parse(userData) : null;
   });
-
-  const [ isLoading, setIsLoading ] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!(token && user);
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-
+    setupInterceptors(setToken, logout); // 👈 conectamos interceptores al contexto
     setIsLoading(false);
   }, []);
 
   const login = (token, userData) => {
-    if (!token || !userData) {
-      console.error('Token o datos de usuario no proporcionados');
-      return;      
-    }
-
     try {
-
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('userData', JSON.stringify(userData));
-      setIsAuthenticated(true);
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("userData", JSON.stringify(userData));
+      setToken(token);
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setUser(userData);
+      setIsAuthenticated(true);
     } catch (error) {
-
-      console.error('Error al guardar datos de autenticación', error);
+      console.error("Error al guardar datos de autenticación", error);
+      setToken(null);
+      setUser(null);
       setIsAuthenticated(false);
-      setUser(null);    
     }
   };
 
-  const logout = async() => {
-
+  const logout = async () => {
     try {
-
       await authService.logout();
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('userData');
-      setIsAuthenticated(false);
-      setUser(null);      
     } catch (error) {
-
-      console.error(`Error al cerrar sesión ${error}`);
+      console.error("Error al cerrar sesión", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userData");
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
     }
+  };
 
-  }
-
-    const contextValue = useMemo(() => ({
+  const contextValue = useMemo(
+    () => ({
       isAuthenticated,
       user,
+      token,
       isLoading,
       login,
-      logout      
-    }), [isAuthenticated, user, isLoading]);
+      logout,
+      setToken, // 👈 lo exponemos para que axios pueda actualizar el token
+    }),
+    [isAuthenticated, user, token, isLoading]
+  );
 
-    return (
-      <AuthContext.Provider value={ contextValue }>
-        { children }
-      </AuthContext.Provider>
-    );
-
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);
