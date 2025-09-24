@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '@/services';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '@/context/AuthContext';
+import { authService } from '@/services';
 import logo from '../assets/logoepa.png';
 
 export const Login = () => {
@@ -29,8 +29,8 @@ export const Login = () => {
   };  
 
   return (
-    <div className="bg-epaColor flex justify-center items-center h-screen">
-      <div className="bg-white rounded-xl shadow-2xl w-96 p-6">
+    <div className="bg-[url(/assets/epaRecoleccion.jpeg)] bg-epaColor/60 bg-blend-soft-light bg-cover bg-center flex justify-center items-center h-screen">
+      <div className="bg-white/80 rounded-xl shadow-2xl w-96 p-6">
         <div>
           <img src={logo} alt="logo" />
         </div>
@@ -53,7 +53,7 @@ export const Login = () => {
             </label>
             <input
               type="email"
-              className="w-full p-1 border rounded"
+              className="w-full p-1 border border-epaColor rounded-md"
               {...register('email', {
                 required: 'El correo electronico es obligatorio',
               })}
@@ -69,7 +69,7 @@ export const Login = () => {
             </label>
             <input
               type="password"
-              className="w-full p-1 border rounded"
+              className="w-full p-1 border border-epaColor rounded-md"
               {...register('password', {
                 required: 'La contraseña es obligatoria',
                 minLength: { value: 8, message: 'Minimo 8 caracteres' },

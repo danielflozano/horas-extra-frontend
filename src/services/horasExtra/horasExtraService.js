@@ -29,8 +29,8 @@ export const horasExtraService = {
       const res = await axiosInstance.delete(`/extras/delete/${id}`);
       return res.data;
     } catch (error) {
-      console.error('Error eliminando horas extra', error);
-      throw error.response?.data || error.message;      
+      const errorMessage = error.response?.data?.message || 'Error eliminando horas extra ❌';
+      throw new Error(errorMessage);  
     }
   },
 

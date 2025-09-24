@@ -204,7 +204,16 @@ export const RegisterOvertime = ({ onBack }) => {
               />
             </label>
           </div>
-
+          <label className="flex flex-col">
+            <span className="text-epaColor font-semibold">
+              Observaciones
+            </span>
+            <textarea
+              type="text"
+              className="border border-gray-500 rounded-md p-1 resize-none"
+              {...register('observaciones')}
+            />
+          </label>
           <button
             type="submit"
             className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
@@ -213,7 +222,10 @@ export const RegisterOvertime = ({ onBack }) => {
           </button>
         </form>
 
-        <OverTimeRecordTable data={registroHorasExtra} />
+        <OverTimeRecordTable
+          data={registroHorasExtra}
+          onDeleteSuccess={() => setRegistroHorasExtra({})}
+        />
 
         <Dialog open={openModal} onOpenChange={setOpenModal}>
           <DialogContent>

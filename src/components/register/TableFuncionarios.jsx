@@ -21,7 +21,7 @@ export const TableFuncionarios = ({ onBack }) => {
     }
   };
 
-  const loadFuncionariosActivos = async () => {    
+  const loadFuncionariosActivos = async () => { 
     try {
       const response = await funcionariosService.listarFuncionariosActivos();
       setFuncionarios(response.data.filter((f) => f.estado === "Activo"));
@@ -115,6 +115,7 @@ export const TableFuncionarios = ({ onBack }) => {
                   >
                     🔄
                   </button>
+
                 </td>
               </tr>
             ))}

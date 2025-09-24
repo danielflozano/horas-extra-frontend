@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { resetPasswordService } from '@/services/resetPassword/resetPasswordService';
 import logo from '../assets/logoepa.png';
-import { useNavigate } from 'react-router-dom';
 
 export const ResetPassword = () => {
   const [step, setStep] = useState(1); // 1=correo, 2=código, 3=nueva contraseña
@@ -84,8 +84,8 @@ export const ResetPassword = () => {
   };
 
   return (
-    <div className="bg-epaColor flex justify-center items-center h-screen">
-      <div className="bg-white rounded-xl shadow-2xl w-96 p-6">
+    <div className="bg-[url(/assets/epaRecoleccion.jpeg)] bg-epaColor/60 bg-blend-soft-light bg-cover bg-center flex justify-center items-center h-screen">
+      <div className="bg-white/80 rounded-xl shadow-2xl w-96 p-6">
         <div>
           <img src={logo} alt="logo" />
         </div>
@@ -96,12 +96,12 @@ export const ResetPassword = () => {
 
         {/* Mensajes de error o éxito */}
         {apiError && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+          <div className="bg-red-100/60 border border-red-400 text-red-700 font-semibold px-4 py-3 rounded-lg relative mb-4">
             {apiError}
           </div>
         )}
         {successMsg && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+          <div className="bg-epaColor/30 border border-epaColor text-epaColor font-semibold px-4 py-3 rounded-lg relative mb-4">
             {successMsg}
           </div>
         )}
@@ -114,7 +114,7 @@ export const ResetPassword = () => {
               </label>
               <input
                 type="email"
-                className="w-full p-1 border rounded"
+                className="w-full p-1 border border-epaColor rounded-md"
                 {...register('email', {
                   required: 'El correo electrónico es obligatorio',
                 })}
@@ -147,7 +147,7 @@ export const ResetPassword = () => {
               </label>
               <input
                 type="text"
-                className="w-full p-1 border rounded"
+                className="w-full p-1 border border-epaColor rounded-md"
                 {...register('codigo', {
                   required: 'El código es obligatorio',
                 })}
@@ -173,7 +173,7 @@ export const ResetPassword = () => {
               </label>
               <input
                 type="email"
-                className="w-full p-1 border rounded"
+                className="w-full p-1 border border-epaColor rounded-md"
                 defaultValue={email} // prellenamos con el email ya guardado
                 {...register('email', {
                   required: 'El correo electrónico es obligatorio',
@@ -190,7 +190,7 @@ export const ResetPassword = () => {
               </label>
               <input
                 type="password"
-                className="w-full p-1 border rounded"
+                className="w-full p-1 border border-epaColor rounded-md"
                 {...register('nuevaPassword', {
                   required: 'La contraseña es obligatoria',
                   minLength: {
@@ -212,7 +212,7 @@ export const ResetPassword = () => {
               </label>
               <input
                 type="password"
-                className="w-full p-1 border rounded"
+                className="w-full p-1 border border-epaColor rounded-md"
                 {...register('confirmarPassword', {
                   required: 'Debe confirmar la contraseña',
                 })}

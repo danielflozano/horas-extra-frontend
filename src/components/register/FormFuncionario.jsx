@@ -1,10 +1,20 @@
-import { funcionariosService } from '@/services';
-import { cargosService } from '@/services/cargos/cargosService';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import {   Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { funcionariosService } from '@/services';
+import { cargosService } from '@/services/cargos/cargosService';
 
 export const FormFuncionario = ({ onBack }) => {
+
   const [cargos, setCargos] = useState([]);
+  const [mensaje, setMensaje] = useState('');
+  const [estado, setEstado] = useState('')
+  const [openModal, setOpenModal] = useState(false);
 
   const {
     register,
@@ -30,14 +40,16 @@ export const FormFuncionario = ({ onBack }) => {
     try {
       const response = await funcionariosService.crearFuncionarios(data);
       console.log(response);
-      alert('Funcionario creado con exito');
+      setMensaje(response.message)
+      setEstado(response.success ? 'Registro Exitoso' : 'Error')
       reset();
     } catch (error) {
       const errorMessage =
         error.response?.data?.message ||
         'Error inesperado al registrar funcionario';
       console.log(errorMessage);
-      alert(errorMessage);
+    } finally {
+      setOpenModal(true);
     }
   };
 
@@ -142,6 +154,22 @@ export const FormFuncionario = ({ onBack }) => {
           </button>
         </form>
       </div>
+      <Dialog open={openModal} onOpenChange={setOpenModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle
+                className={`text-4xl text-center font-semibold mb-2 ${estado === "Error" ? "text-red-500" : "text-epaColor"}`}
+              >
+                {estado}
+              </DialogTitle>
+              <DialogDescription className={'text-xl text-center font-semibold mb-2'}>{mensaje}</DialogDescription>
+            </DialogHeader>
+            <button
+              onClick={() => setOpenModal(false)}
+              className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
+            >Cerrar</button>
+          </DialogContent>
+        </Dialog>
     </>
   );
 };

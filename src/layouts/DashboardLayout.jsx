@@ -1,48 +1,70 @@
 
 import { Link, Outlet } from 'react-router-dom';
-import logo from '../assets/logoepa.png';
 import { useAuth } from '@/context/AuthContext';
+import logo from '../assets/logoepa.png';
+import { UserCheck, House, ClipboardClock, Users, NotebookPen } from 'lucide-react';
 
 const currentYear = new Date().getFullYear();
 
 export const DashboardLayout = () => {
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   return (
     <div className="flex h-screen">
-      <div className='bg-gray-50 w-1/6 flex-col justify-between p-4 border-r border-gray-300'>
-        <div className='space-y-4 pb-4 text-center'>
+      <div className='bg-gray-50 w-1/6 flex flex-col p-4 border-r border-gray-300'>
+        <div className='space-y-4 pb-10 text-center'>
           <img src={logo} alt="Logo EPA" />
           <h3 className='text-epaColor text-lg font-bold'>Menu Principal</h3>
           <h4 className='font-medium'>Version 1.0</h4>
         </div>
-        <nav className='space-y-4'>
+        <nav className='space-y-4 pb-10'>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard' }>Inicio</Link>
+            <Link className='flex gap-2 items-center transition-transform duration-300 hover:translate-x-4' to={ '/dashboard' }>
+              <House size={20} />
+              Inicio
+            </Link>
           </div>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/overtime' }>Horas Extra</Link>
+            <Link className='flex gap-2 items-center transition-transform duration-300 hover:translate-x-4' to={ '/dashboard/overtime' }>
+              <ClipboardClock size={20} />
+              Horas Extra
+            </Link>
           </div>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/register' }>Funcionario</Link>
+            <Link className='flex gap-2 items-center transition-transform duration-300 hover:translate-x-4' to={ '/dashboard/register' }>
+              <Users size={20} />
+              Funcionarios
+            </Link>
           </div>
           <div className='text-epaColor font-medium'>
-            <Link to={ '/dashboard/generate-report' }>Reportes</Link>
+            <Link className='flex gap-2 items-center transition-transform duration-300 hover:translate-x-4' to={ '/dashboard/generate-report' }>
+              <NotebookPen size={20} />
+              Reportes
+            </Link>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="bg-red-700 text-white min-w-9/10 rounded-2xl p-2 mx-auto block hover:bg-red-800 transform hover:scale-105"
-          >
-            Cerrar sesión
-          </button>
         </nav>
+        <button
+          type="button"
+          onClick={logout}
+          className="bg-red-600 text-white min-w-9/10 rounded-2xl p-2 mx-auto block hover:bg-red-800 transform hover:scale-105"
+        >
+          Cerrar sesión
+        </button>
       </div>
 
       <div className='flex flex-col w-full'>
-        <header className='bg-epaColor text-white p-4 text-center font-bold text-3xl'>
-          Plataforma Horas Extra - EPA
+        <header className='bg-epaColor grid grid-cols-3 px-6 py-6'>
+          <div></div>
+          <h2 className='text-white text-center font-bold text-3xl'>
+            Plataforma Horas Extra - EPA
+          </h2>
+          <div className='flex text-white text-sm items-center justify-end gap-2'>
+            <UserCheck />
+            <div className='text-right'>
+              {user.name} <br /> {user.rol}
+            </div>
+          </div>
         </header>
 
         <main className='bg-gray-200 flex-1 overflow-auto p-4'>

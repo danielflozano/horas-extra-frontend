@@ -5,7 +5,6 @@ export const cargosService = {
     try {
       const response = await axiosInstance.post('/cargos/crearCargo', data);
       console.log(response.data);
-
       return {
         ok: true,
         message: 'se creó el cargo de manera exitosa',

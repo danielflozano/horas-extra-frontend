@@ -14,13 +14,13 @@ export const GetOvertime = ({ onBack }) => {
   const getHorasExtra = async() => {
     try {
       const response = await horasExtraService.listarExtras();
-      setHorasExtra(response.data)    
+      setHorasExtra(response.data);
     } catch (error) {
       console.error('Error cargando horas extra', error);      
     }    
   };
 
-    const abrirModal = (id) => {
+  const abrirModal = (id) => {
     setIdSeleccionado(id);
     setMostrarModal(true);
   };
