@@ -89,11 +89,9 @@ export const ResetPassword = () => {
         <div>
           <img src={logo} alt="logo" />
         </div>
-
         <h2 className="text-epaColor text-2xl font-bold text-center p-6">
           Recuperar Contraseña
         </h2>
-
         {/* Mensajes de error o éxito */}
         {apiError && (
           <div className="bg-red-100/60 border border-red-400 text-red-700 font-semibold px-4 py-3 rounded-lg relative mb-4">

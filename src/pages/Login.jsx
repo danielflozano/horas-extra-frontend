@@ -25,8 +25,8 @@ export const Login = () => {
     } catch (error) {
       console.error(error);
       setApiError(error.message);
-    }    
-  };  
+    }
+  };
 
   return (
     <div className="bg-[url(/assets/epaRecoleccion.jpeg)] bg-epaColor/60 bg-blend-soft-light bg-cover bg-center flex justify-center items-center h-screen">

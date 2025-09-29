@@ -65,4 +65,33 @@ export const horasExtraService = {
   },
 
   // exportarExcel
+
+  // Importar Extras
+  importarExtras: async(formData) => {
+    try {
+      const res = await axiosInstance.post('/extras/importar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });      
+      return res.data;      
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Error importando horas extra ❌'      
+      throw new Error(errorMessage);
+    }
+  },
+
+  obtenerNombreHojasExcel: async(formData) => {
+    try {
+      const res = await axiosInstance.post('/extras/sheets', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
+      return res.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.error || 'Error obteniendo hojas de excel ❌'
+      throw new Error(errorMessage);      
+    }
+  },
 };

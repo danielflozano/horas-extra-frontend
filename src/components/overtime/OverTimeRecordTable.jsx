@@ -59,11 +59,11 @@ export const OverTimeRecordTable = ({ data, onDeleteSuccess }) => {
   };
 
   if (!data || Object.keys(data).length === 0)
-    return <p className="mt-5 text-epaColor font-semibold">No hay Registro</p>;
+    return <p className="text-epaColor font-semibold">No hay Registro</p>;
 
   return (
     <>
-      <table className="mt-5 w-1/2 border border-gray-300 shadow-2xl rounded-xl overflow-hidden">
+      <table className="w-1/2 border border-gray-300 shadow-2xl rounded-xl overflow-hidden">
         <thead className="bg-epaColor text-white">
           <tr>
             <th className="px-4 py-2 text-left">Campo</th>

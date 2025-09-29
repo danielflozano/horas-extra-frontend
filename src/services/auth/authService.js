@@ -4,7 +4,7 @@ export const authService = {
   login: async (userData) => {
     try {
       const response = await authAxios.post("/auth/login", userData);
-      console.log(response.data.message);
+      console.log(response.data.msg);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.msg || "Error desconocido al iniciar sesión";
@@ -23,7 +23,7 @@ export const authService = {
     }
   },
 
-    renew: async () => {
+  renew: async () => {
     try {
       const response = await authAxios.post("/auth/renew");
       console.log(response.data);
@@ -33,5 +33,4 @@ export const authService = {
       throw new Error(errorMessage);
     }
   },
-
 };

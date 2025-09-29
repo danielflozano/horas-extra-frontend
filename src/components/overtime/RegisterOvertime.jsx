@@ -11,17 +11,25 @@ import { OverTimeRecordTable } from '@/components/overtime/OverTimeRecordTable';
 
 export const RegisterOvertime = ({ onBack }) => {
   const [funcionarios, setFuncionarios] = useState([]);
+  const [hojasExcel, setHojasExcel] = useState([]);
   const [registroHorasExtra, setRegistroHorasExtra] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isError, setIsError] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm();
+const {
+  register: registerHoras,
+  handleSubmit: handleSubmitHoras,
+  reset: resetHoras,
+  formState: { errors: errorsHoras }
+} = useForm();
+
+const {
+  register: registerExcel,
+  handleSubmit: handleSubmitExcel,
+  reset: resetExcel,
+  formState: { errors: errorsExcel }
+} = useForm();
 
   useEffect(() => {
     const getFuncionarios = async () => {
@@ -38,10 +46,10 @@ export const RegisterOvertime = ({ onBack }) => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await horasExtraService.crearExtras(data);   
+      const response = await horasExtraService.crearExtras(data); 
       console.log(response.data);         
       setRegistroHorasExtra(response.data);      
-      reset();
+      resetHoras();
       setIsError(false);
       setModalMessage('Horas extra registradas con éxito');
     } catch (error) {
@@ -52,7 +60,70 @@ export const RegisterOvertime = ({ onBack }) => {
     }
   };
 
-  console.log(registroHorasExtra);
+  const onSubmitExcel = async (data) => {
+    // data.file es un FileList y data.sheet es un string
+    console.log(data);
+    
+    const file = data.file?.[0];
+    const sheet = data.sheet;
+
+    if (!file) {
+      setIsError(true);
+      setModalMessage('Selecciona un archivo primero');
+      setOpenModal(true);
+      return;
+    }
+
+    if (!sheet) {
+      setIsError(true);
+      setModalMessage('Selecciona una hoja de Excel');
+      setOpenModal(true);
+      return;
+    }
+
+    // Creamos el FormData con ambos valores
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('sheet', sheet);
+
+    try {
+      const response = await horasExtraService.importarExtras(formData);
+      setIsError(false);
+      setModalMessage(response.message || 'Archivo subido con éxito');
+    } catch (error) {
+      setIsError(true);
+      setModalMessage(error.message || 'Error al subir el archivo');
+    } finally {
+      resetExcel();
+      setOpenModal(true);
+    }
+  };
+
+
+  const getNombreHojas = async (data) => {
+    console.log(data);
+    
+    const file = data.file[0];
+    if (!file) {
+      console.log('Selecciona un archivo primero');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await horasExtraService.obtenerNombreHojasExcel(formData);
+
+      setHojasExcel(response.sheetNames);
+      
+    } catch (error) {
+      setIsError(true);
+      setModalMessage(error.message);
+      setOpenModal(true);
+    }
+  };
+
+  // console.log(registroHorasExtra);
 
   return (
     <>
@@ -68,15 +139,15 @@ export const RegisterOvertime = ({ onBack }) => {
           Registro de Horas Extra
         </h2>
         <form
-          className="bg-white p-5 w-1/2 rounded-xl shadow-2xl"
-          onSubmit={handleSubmit(onSubmit)}
+          className="bg-white p-5 w-1/2 rounded-xl shadow-2xl mb-5"
+          onSubmit={handleSubmitHoras(onSubmit)}
         >
           <div className="pb-5">
             <label className="flex flex-col">
               <span className="text-epaColor font-semibold">Funcionario</span>
               <select
                 className="border border-gray-500 rounded-md p-1"
-                {...register('FuncionarioAsignado', {
+                {...registerHoras('FuncionarioAsignado', {
                   required: true,
                 })}
               >
@@ -99,7 +170,7 @@ export const RegisterOvertime = ({ onBack }) => {
                 <input
                   type="date"
                   className="border border-gray-500 rounded-md p-1"
-                  {...register('fecha_inicio_trabajo', {
+                  {...registerHoras('fecha_inicio_trabajo', {
                     required:
                       'La fecha de inicio de la jornada laboral es obligatoria',
                   })}
@@ -108,7 +179,7 @@ export const RegisterOvertime = ({ onBack }) => {
 
               <label className="flex flex-col">
                 <span className="text-epaColor font-semibold">Festivo</span>
-                <input type="checkbox" {...register('es_festivo_Inicio')} />
+                <input type="checkbox" {...registerHoras('es_festivo_Inicio')} />
               </label>
             </div>
 
@@ -119,7 +190,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="time"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('hora_inicio_trabajo', {
+                {...registerHoras('hora_inicio_trabajo', {
                   required:
                     'La hora de inicio de la jornada laboral es obligatoria',
                 })}
@@ -134,7 +205,7 @@ export const RegisterOvertime = ({ onBack }) => {
                 <input
                   type="date"
                   className="border border-gray-500 rounded-md p-1"
-                  {...register('fecha_fin_trabajo', {
+                  {...registerHoras('fecha_fin_trabajo', {
                     required:
                       'La fecha de culminación de la jornada laboral es obligatoria',
                   })}
@@ -142,7 +213,7 @@ export const RegisterOvertime = ({ onBack }) => {
               </label>
               <label className="flex flex-col">
                 <span className="text-epaColor font-semibold">Festivo</span>
-                <input type="checkbox" {...register('es_festivo_Fin')} />
+                <input type="checkbox" {...registerHoras('es_festivo_Fin')} />
               </label>
             </div>
 
@@ -153,7 +224,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="time"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('hora_fin_trabajo', {
+                {...registerHoras('hora_fin_trabajo', {
                   required:
                     'La hora de culminación de la jornada laboral es obligatoria',
                 })}
@@ -167,7 +238,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="date"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('fecha_inicio_descanso')}
+                {...registerHoras('fecha_inicio_descanso')}
               />
             </label>
 
@@ -178,7 +249,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="time"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('hora_inicio_descanso')}
+                {...registerHoras('hora_inicio_descanso')}
               />
             </label>
 
@@ -189,7 +260,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="date"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('fecha_fin_descanso')}
+                {...registerHoras('fecha_fin_descanso')}
               />
             </label>
 
@@ -200,7 +271,7 @@ export const RegisterOvertime = ({ onBack }) => {
               <input
                 type="time"
                 className="border border-gray-500 rounded-md p-1"
-                {...register('hora_fin_descanso')}
+                {...registerHoras('hora_fin_descanso')}
               />
             </label>
           </div>
@@ -210,8 +281,8 @@ export const RegisterOvertime = ({ onBack }) => {
             </span>
             <textarea
               type="text"
-              className="border border-gray-500 rounded-md p-1 resize-none"
-              {...register('observaciones')}
+              className="border border-gray-500 rounded-md p-1 resize-none mb-5"
+              {...registerHoras('observaciones')}
             />
           </label>
           <button
@@ -219,6 +290,68 @@ export const RegisterOvertime = ({ onBack }) => {
             className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
           >
             Registrar
+          </button>
+        </form>
+        <h3 className='text-epaColor text-center text-2xl font-extrabold pt-2 pb-4'>
+          Importar Excel de Horas Extra
+        </h3>
+        <form
+          onSubmit={handleSubmitExcel(onSubmitExcel)}
+          className='bg-white w-1/2 rounded-xl shadow-2xl p-5 mb-4'
+        >
+          <label className='flex flex-col mb-5'>
+            <span className='text-epaColor font-semibold'>
+              Archivo Excel
+            </span>
+            <input
+              type="file"
+              accept='.xlsx, .xls, .csv'
+              className="border border-gray-500 rounded-md p-1"
+              {...registerExcel('file', {
+                    required:
+                      'Debe subir un archivo de excel',
+              })}
+              onChange={(e) => {
+                // Notificar al react-hook-form
+                registerExcel("file").onChange(e);
+                // Llamar a getNombreHojas
+                getNombreHojas({ file: e.target.files });
+              }}
+
+            />
+            {errorsExcel.file && (
+              <p className="text-red-500 text-sm mt-1">
+                {errorsExcel.file.message}
+              </p>
+            )}
+          </label>
+          <label className="flex flex-col">
+            <span className="text-epaColor font-semibold">Hoja de Excel</span>
+            <select
+              className="border border-gray-500 rounded-md p-1"
+              {...registerExcel('sheet', {
+                required:
+                  'Debe elejir la hoja de excel que desea subir',
+              })}
+            >
+              <option value="">Seleccione la hoja que desea importar</option>
+              {hojasExcel.map((hojaExcel, index) => (
+                <option key={index} value={hojaExcel}>
+                  {hojaExcel}
+                </option>
+              ))}
+            </select>
+            {errorsExcel.file && (
+              <p className="text-red-500 text-sm mt-1">
+                {errorsExcel.file.message}
+              </p>
+            )}
+          </label>
+          <button
+            type="submit"
+            className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
+          >
+            Subir Archivo
           </button>
         </form>
 
@@ -241,8 +374,5 @@ export const RegisterOvertime = ({ onBack }) => {
         </Dialog>
       </div>
     </>
-
   );
 };
-
-
