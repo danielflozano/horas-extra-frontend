@@ -13,7 +13,7 @@ export const FormFuncionario = ({ onBack }) => {
 
   const [cargos, setCargos] = useState([]);
   const [mensaje, setMensaje] = useState('');
-  const [estado, setEstado] = useState('')
+  const [estado, setEstado] = useState('');
   const [openModal, setOpenModal] = useState(false);
 
   const {

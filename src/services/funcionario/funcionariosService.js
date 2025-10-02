@@ -37,19 +37,17 @@ export const funcionariosService = {
 
   actualizarFuncionario: async (id, data) => {
     try {
-      const res = await axiosInstance.put(
-        `/funcionario/actualizar/${id}`,
-        data
-      );
-      console.log('Registro de funcionario exitoso');
-      return res.data;
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        'Error desconocido actualizando el funcionario';
+      const res = await axiosInstance.put(`/funcionario/actualizar/${id}`, data);
       return {
-        ok: false,
-        message: `Error Actualizando funcionario. ${errorMessage}`,
+        success: res.data?.success ?? true,
+        message: res.data?.message ?? 'Funcionario actualizado exitosamente',
+        data: res.data?.data ?? null,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Error desconocido actualizando el funcionario',
+        data: null,
       };
     }
   },

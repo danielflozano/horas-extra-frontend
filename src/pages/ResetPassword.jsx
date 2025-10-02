@@ -52,6 +52,7 @@ export const ResetPassword = () => {
         setStep(3);
       } else {
         setApiError(response?.msg || 'Código inválido');
+        
       }
     } catch (error) {
       setApiError('Ocurrió un error. Inténtalo de nuevo.');

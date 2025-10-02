@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { funcionariosService, horasExtraService } from '../../services';
-import {   Dialog,
+import {
+  Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
- } from '@/components/ui/dialog';
+} from '@/components/ui/dialog';
 import { OverTimeRecordTable } from '@/components/overtime/OverTimeRecordTable';
+import { LoadSpinner } from '../spinners/LoadSpinner';
 
 export const RegisterOvertime = ({ onBack }) => {
   const [funcionarios, setFuncionarios] = useState([]);
@@ -16,20 +18,23 @@ export const RegisterOvertime = ({ onBack }) => {
   const [openModal, setOpenModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-const {
-  register: registerHoras,
-  handleSubmit: handleSubmitHoras,
-  reset: resetHoras,
-  formState: { errors: errorsHoras }
-} = useForm();
+  const {
+    register: registerHoras,
+    handleSubmit: handleSubmitHoras,
+    reset: resetHoras,
+    formState: { errors: errorsHoras },
+  } = useForm();
 
-const {
-  register: registerExcel,
-  handleSubmit: handleSubmitExcel,
-  reset: resetExcel,
-  formState: { errors: errorsExcel }
-} = useForm();
+  const {
+    control: controlExcel,
+    handleSubmit: handleSubmitExcel,
+    reset: resetExcel,
+    formState: { errors: errorsExcel },
+  } = useForm();
+
+  const fileInputRef = useRef(null); // 👈 para limpiar input file real
 
   useEffect(() => {
     const getFuncionarios = async () => {
@@ -46,25 +51,22 @@ const {
 
   const onSubmit = async (data) => {
     try {
-      const response = await horasExtraService.crearExtras(data); 
-      console.log(response.data);         
-      setRegistroHorasExtra(response.data);      
+      const response = await horasExtraService.crearExtras(data);
+      setRegistroHorasExtra(response.data);
       resetHoras();
       setIsError(false);
       setModalMessage('Horas extra registradas con éxito');
     } catch (error) {
       setIsError(true);
-      setModalMessage(error.message);      
+      setModalMessage(error.message);
     } finally {
       setOpenModal(true);
     }
   };
 
   const onSubmitExcel = async (data) => {
-    // data.file es un FileList y data.sheet es un string
-    console.log(data);
-    
-    const file = data.file?.[0];
+    setLoading(true)
+    const file = data.file;
     const sheet = data.sheet;
 
     if (!file) {
@@ -81,10 +83,9 @@ const {
       return;
     }
 
-    // Creamos el FormData con ambos valores
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('sheet', sheet);
+    formData.append('nombreHoja', sheet);
 
     try {
       const response = await horasExtraService.importarExtras(formData);
@@ -94,16 +95,16 @@ const {
       setIsError(true);
       setModalMessage(error.message || 'Error al subir el archivo');
     } finally {
-      resetExcel();
+      resetExcel({ file: null, sheet: '' }); // limpia RHF
+      if (fileInputRef.current) fileInputRef.current.value = ''; // limpia input real
+      setLoading(false)
+      setHojasExcel([]); // limpia select
       setOpenModal(true);
+
     }
   };
 
-
-  const getNombreHojas = async (data) => {
-    console.log(data);
-    
-    const file = data.file[0];
+  const getNombreHojas = async (file) => {
     if (!file) {
       console.log('Selecciona un archivo primero');
       return;
@@ -111,19 +112,16 @@ const {
 
     const formData = new FormData();
     formData.append('file', file);
+
     try {
       const response = await horasExtraService.obtenerNombreHojasExcel(formData);
-
       setHojasExcel(response.sheetNames);
-      
     } catch (error) {
       setIsError(true);
       setModalMessage(error.message);
       setOpenModal(true);
     }
   };
-
-  // console.log(registroHorasExtra);
 
   return (
     <>
@@ -186,7 +184,7 @@ const {
             <label className="flex flex-col">
               <span className="text-epaColor font-semibold">
                 Hora Inicio Trabajo
-              </span >
+              </span>
               <input
                 type="time"
                 className="border border-gray-500 rounded-md p-1"
@@ -276,9 +274,7 @@ const {
             </label>
           </div>
           <label className="flex flex-col">
-            <span className="text-epaColor font-semibold">
-              Observaciones
-            </span>
+            <span className="text-epaColor font-semibold">Observaciones</span>
             <textarea
               type="text"
               className="border border-gray-500 rounded-md p-1 resize-none mb-5"
@@ -292,32 +288,34 @@ const {
             Registrar
           </button>
         </form>
-        <h3 className='text-epaColor text-center text-2xl font-extrabold pt-2 pb-4'>
+
+        <h3 className="text-epaColor text-center text-2xl font-extrabold pt-2 pb-4">
           Importar Excel de Horas Extra
         </h3>
         <form
           onSubmit={handleSubmitExcel(onSubmitExcel)}
-          className='bg-white w-1/2 rounded-xl shadow-2xl p-5 mb-4'
+          className="bg-white w-1/2 rounded-xl shadow-2xl p-5 mb-4"
         >
-          <label className='flex flex-col mb-5'>
-            <span className='text-epaColor font-semibold'>
-              Archivo Excel
-            </span>
-            <input
-              type="file"
-              accept='.xlsx, .xls, .csv'
-              className="border border-gray-500 rounded-md p-1"
-              {...registerExcel('file', {
-                    required:
-                      'Debe subir un archivo de excel',
-              })}
-              onChange={(e) => {
-                // Notificar al react-hook-form
-                registerExcel("file").onChange(e);
-                // Llamar a getNombreHojas
-                getNombreHojas({ file: e.target.files });
-              }}
-
+          {/* Input de archivo Excel */}
+          <label className="flex flex-col mb-5">
+            <span className="text-epaColor font-semibold">Archivo Excel</span>
+            <Controller
+              name="file"
+              control={controlExcel}
+              rules={{ required: 'Debe subir un archivo de excel' }}
+              render={({ field }) => (
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="border border-gray-500 rounded-md p-1"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    field.onChange(file || null);
+                    if (file) getNombreHojas(file);
+                  }}
+                />
+              )}
             />
             {errorsExcel.file && (
               <p className="text-red-500 text-sm mt-1">
@@ -325,35 +323,48 @@ const {
               </p>
             )}
           </label>
+
+          {/* Select de hoja */}
           <label className="flex flex-col">
             <span className="text-epaColor font-semibold">Hoja de Excel</span>
-            <select
-              className="border border-gray-500 rounded-md p-1"
-              {...registerExcel('sheet', {
-                required:
-                  'Debe elejir la hoja de excel que desea subir',
-              })}
-            >
-              <option value="">Seleccione la hoja que desea importar</option>
-              {hojasExcel.map((hojaExcel, index) => (
-                <option key={index} value={hojaExcel}>
-                  {hojaExcel}
-                </option>
-              ))}
-            </select>
-            {errorsExcel.file && (
+            <Controller
+              name="sheet"
+              control={controlExcel}
+              rules={{
+                required: 'Debe elegir la hoja de excel que desea subir',
+              }}
+              render={({ field }) => (
+                <select
+                  className="border border-gray-500 rounded-md p-1"
+                  {...field}
+                >
+                  <option value="">
+                    Seleccione la hoja que desea importar
+                  </option>
+                  {hojasExcel.map((hojaExcel, index) => (
+                    <option key={index} value={hojaExcel}>
+                      {hojaExcel}
+                    </option>
+                  ))}
+                </select>
+              )}
+            />
+            {errorsExcel.sheet && (
               <p className="text-red-500 text-sm mt-1">
-                {errorsExcel.file.message}
+                {errorsExcel.sheet.message}
               </p>
             )}
           </label>
+
           <button
             type="submit"
-            className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
+            className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold mt-5"
           >
             Subir Archivo
           </button>
         </form>
+
+        {loading && ( <LoadSpinner styles='fixed bg-gray-200/95' name='Importando Excel' /> )}
 
         <OverTimeRecordTable
           data={registroHorasExtra}
@@ -363,13 +374,19 @@ const {
         <Dialog open={openModal} onOpenChange={setOpenModal}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className={'text-epaColor text-3xl text-center font-bold mb-2'}>{isError ? 'Error' : 'Registro Exitoso'}</DialogTitle>
-              <DialogDescription className={'text-xl text-center font-semibold mb-2'}>{modalMessage}</DialogDescription>
+              <DialogTitle className="text-epaColor text-3xl text-center font-bold mb-2">
+                {isError ? 'Error' : 'Registro Exitoso'}
+              </DialogTitle>
+              <DialogDescription className="text-xl text-center font-semibold mb-2">
+                {modalMessage}
+              </DialogDescription>
             </DialogHeader>
             <button
               onClick={() => setOpenModal(false)}
               className="bg-epaColor w-1/2 text-white rounded-xl p-1.5 border border-transparent mx-auto block hover:border-black hover:bg-blue-100 hover:text-epaColor hover:font-semibold"
-            >Cerrar</button>
+            >
+              Cerrar
+            </button>
           </DialogContent>
         </Dialog>
       </div>

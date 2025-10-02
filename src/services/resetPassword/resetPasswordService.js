@@ -26,7 +26,7 @@ export const resetPasswordService = {
   resetPassword: async(data) => {
     try {
       const response = await axiosInstance.post('/auth/resetPassword', data)
-      console.log('Ok reset password', response.data);      
+      console.log('Ok reset password', response.data);
       return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.msg

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { horasExtraService } from "@/services"
+import { LoadSpinner } from "../spinners/LoadSpinner";
 
 export const GetOvertime = ({ onBack }) => {
 
   const [horasExtra, setHorasExtra] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getHorasExtra();
@@ -17,7 +19,9 @@ export const GetOvertime = ({ onBack }) => {
       setHorasExtra(response.data);
     } catch (error) {
       console.error('Error cargando horas extra', error);      
-    }    
+    } finally {
+      setLoading(false);
+    }  
   };
 
   const abrirModal = (id) => {
@@ -93,7 +97,13 @@ export const GetOvertime = ({ onBack }) => {
                 <td>{formatDate(registro.fecha_fin_descanso)}</td>
                 <td>{formatHour(registro.hora_inicio_descanso)}</td>
                 <td>{formatHour(registro.hora_fin_descanso)}</td>
-                <td>
+                <td className="space-x-1 space-y-1">
+                  <button
+                    onClick={() => abrirModal(registro._id)}
+                    className="bg-epaColor text-white px-3 py-1 rounded-lg hover:bg-gray-500 transition"
+                  >
+                    Actualizar
+                  </button>
                   <button
                     onClick={() => abrirModal(registro._id)}
                     className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition"
@@ -112,8 +122,9 @@ export const GetOvertime = ({ onBack }) => {
           </div>
         )}
       </div>
+      {loading && ( <LoadSpinner styles='absolute bg-gray-200/95' /> )}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-epaColor/50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-epaColor/40 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Confirmar eliminación
@@ -124,7 +135,7 @@ export const GetOvertime = ({ onBack }) => {
             <div className="flex justify-end gap-4">
               <button
                 onClick={cerrarModal}
-                className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition"
+                className="px-4 py-2 rounded-lg bg-epaColor text-white hover:bg-gray-500 transition"
               >
                 Cancelar
               </button>
