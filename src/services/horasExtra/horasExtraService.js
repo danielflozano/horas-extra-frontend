@@ -2,8 +2,6 @@ import { axiosInstance } from "../../api/axiosInstance"
 
 export const horasExtraService = {
 
-  // es la mejor practica en proyectos grandes (throw new error) en proyectos
-  // pequeños se podria devolver siempre un objeto {ok: true o false, msg:''}
   crearExtras: async (extrasData) => {
     try {
       const res = await axiosInstance.post("/extras/crear", extrasData);

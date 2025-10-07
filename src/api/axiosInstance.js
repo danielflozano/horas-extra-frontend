@@ -18,19 +18,19 @@ export const authAxios = axios.create({
   },
 });
 
-// 👉 Configuración de interceptores
+// Configuración de interceptores
 export const setupInterceptors = (setToken, logout) => {
   axiosInstance.interceptors.response.use(
     (response) => response, // deja pasar respuestas normales
     async (error) => {
       const originalRequest = error.config;
 
-      // 👉 Ignorar si el error viene del renew
+      // Ignorar si el error viene del renew
       if (originalRequest.url.includes("/auth/renew")) {
         return Promise.reject(error);
       }
 
-      // 🔐 Si el accessToken expiró (401) y no hemos reintentado aún
+      // Si el accessToken expiró (401) y no hemos reintentado aún
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
 

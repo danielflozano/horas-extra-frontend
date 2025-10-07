@@ -17,7 +17,7 @@ exportarReporteExcel: async (reporteData) => {
     const res = await axiosInstance.post('/reporte/exportar', reporteData, {
       responseType: 'blob',
     });
-    return res.data;
+    return res;
   } catch (error) {
     const errorMessage =
       error.response?.data?.mensaje || 'Error desconocido al crear reporte';

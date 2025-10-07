@@ -20,30 +20,37 @@ export const GenerateReport = () => {
       if (action === 'generar') {
         const response = await reportesService.crearReporte(data);
         console.log('Log de la data ', data);
-        
+
         setReporte(response.data);
         console.log('Log del reporte ', reporte);
-        
+
         setMostrarTabla(true);
       }
 
       if (action === 'excel') {
-        const blob = await reportesService.exportarReporteExcel(data);
+        const res = await reportesService.exportarReporteExcel(data);
+        const contentDisposition = res.headers['content-disposition'];
+        let filename = 'reporte_horas_extra.xlsx';
 
-        const url = window.URL.createObjectURL(
-          new Blob([blob], {
-            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          })
-        );
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="?([^"]+)"?/);
+          if (match && match[1]) filename = match[1];
+        }
 
+        const blob = new Blob([res.data], {
+          type: res.headers['content-type'],
+        });
+
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'reporte_horas_extra.xlsx');
+        link.setAttribute('download', filename); 
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
       }
+
     } catch (error) {
       const message = error || 'Ocurrio un error generando el reporte';
       console.error(message);
