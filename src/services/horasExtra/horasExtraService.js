@@ -28,7 +28,7 @@ export const horasExtraService = {
       return res.data;
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error eliminando horas extra ❌';
-      throw new Error(errorMessage);  
+      throw new Error(errorMessage);
     }
   },
 

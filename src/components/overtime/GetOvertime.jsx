@@ -11,6 +11,8 @@ import {   Dialog,
 
 export const GetOvertime = ({ onBack }) => {
   const [horasExtra, setHorasExtra] = useState([]);
+  const [filtroHorasExtra, setFiltroHorasExtra] = useState([]);
+  const [busqueda, setBusqueda] = useState('')
   const [idSeleccionado, setIdSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalUpdate, setMostrarModalUpdate] = useState(false);
@@ -30,10 +32,30 @@ export const GetOvertime = ({ onBack }) => {
     getHorasExtra();
   }, []);
 
+  useEffect(() => {
+  if (busqueda.trim() === '') {
+    setFiltroHorasExtra(horasExtra);
+  } else {
+    const filtrado = horasExtra.filter((r) =>
+      r.FuncionarioAsignado?.nombre_completo
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
+      r.fecha_inicio_trabajo
+        ?.toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
+      r.FuncionarioAsignado?.identificacion
+        ?.toLowerCase().includes(busqueda.toLowerCase())
+    );
+    setFiltroHorasExtra(filtrado);
+  }
+}, [busqueda, horasExtra]);
+
+
   const getHorasExtra = async () => {
     try {
       const response = await horasExtraService.listarExtras();
       setHorasExtra(response.data);
+      setFiltroHorasExtra(response.data);
     } catch (error) {
       console.error('Error cargando horas extra', error);
     } finally {
@@ -91,15 +113,19 @@ export const GetOvertime = ({ onBack }) => {
     }
   };
 
-  // TODO organizar onSubmitUpdate
-
   const onSubmitUpdate = async (data) => {
-    const response = await horasExtraService.actualizarExtras(idSeleccionado, data);
-    setEstado(response.success ? "Respuesta Exitosa" : "Error");
-    setMensaje(response.message);
-    setOpenModal(true);
-    cerrarModal();
-    getHorasExtra();
+    try {
+      const response = await horasExtraService.actualizarExtras(idSeleccionado, data);
+      setEstado(response.success ? "Respuesta Exitosa" : "Error");
+      setMensaje(response.message);
+      getHorasExtra();      
+    } catch (error) {
+      setEstado('Error');
+      setMensaje(error);
+    } finally {
+      setOpenModal(true);
+      cerrarModal();
+    }
   };
 
   const formatDate = (value) => {
@@ -110,6 +136,11 @@ export const GetOvertime = ({ onBack }) => {
     return value && value.trim() !== '' ? value : '—';
   };
 
+  // console.log(horasExtra);
+  console.log(busqueda);
+  
+  
+
   return (
     <>
       <button
@@ -119,46 +150,55 @@ export const GetOvertime = ({ onBack }) => {
       >
         Regresar
       </button>
-      <h2 className="text-epaColor text-center text-4xl font-extrabold pt-2 pb-4">
+      <h2 className="text-epaColor text-center text-4xl font-extrabold pt-2 pb-6">
         Registro Individual de Horas Extra
       </h2>
+      <input
+        type="text"
+        placeholder='Buscar por identificación, nombre o fecha'
+        value={busqueda}
+        onChange={(e) => setBusqueda(e.target.value)}
+        className='w-sm bg-white text-epaColor p-1 border-2 border-epaColor rounded-md'
 
+
+      />
+      
       <div className="bg-white shadow-md rounded-lg p-6 mx-auto mt-6">
         <table className="w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-epaColor h-8 text-left text-sm font-semibold text-white uppercase">
+          <thead className="bg-epaColor text-white">
             <tr>
-              <th className="py-4">Identificación</th>
-              <th>Nombre</th>
-              <th>Fecha creación</th>
-              <th>Inicio trabajo</th>
-              <th>Fin trabajo</th>
-              <th>
+              <th className="py-4 text-center border border-white">Identificación</th>
+              <th className='text-center border border-white'>Nombre</th>
+              <th className='text-center border border-white'>Fecha creación</th>
+              <th className='text-center border border-white'>Inicio trabajo</th>
+              <th className='text-center border border-white'>Fin trabajo</th>
+              <th className='text-center border border-white'>
                 Hora inicio
                 <br />
                 trabajo
               </th>
-              <th>
+              <th className='text-center border border-white'>
                 Hora fin
                 <br />
                 trabajo
               </th>
-              <th>Inicio descanso</th>
-              <th>Fin descanso</th>
-              <th>
+              <th className='text-center border border-white'>Inicio descanso</th>
+              <th className='text-center border border-white'>Fin descanso</th>
+              <th className='text-center border border-white'>
                 Hora inicio
                 <br />
                 descanso
               </th>
-              <th>
+              <th className='text-center border border-white'>
                 Hora fin
                 <br />
                 descanso
               </th>
-              <th>Acciones</th>
+              <th className='text-center border border-white'>Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-300">
-            {horasExtra.map((registro) => (
+            {filtroHorasExtra.map((registro) => (
               <tr
                 key={registro._id}
                 className="hover:bg-gray-50 transition-colors"
@@ -403,3 +443,10 @@ export const GetOvertime = ({ onBack }) => {
     </>
   );
 };
+
+
+
+/* 
+  fecha_inicio_trabajo: '2025-09-22'
+  FuncionarioAsignado: nombre_completo: 'tal nombre'
+*/
