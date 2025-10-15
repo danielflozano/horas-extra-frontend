@@ -74,7 +74,7 @@ export const horasExtraService = {
       });      
       return res.data;      
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Error importando horas extra ❌'      
+      const errorMessage = error.response?.data?.message || 'Error importando horas extra ❌'
       throw new Error(errorMessage);
     }
   },
